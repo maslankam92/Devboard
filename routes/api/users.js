@@ -2,7 +2,10 @@ const express = require("express");
 const router = express.Router();
 const gravatar = require("gravatar");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const User = require("../../models/User");
+const keys = require("../../config/keys");
+
 /*
 * @route GET api/users/test
 * @description Tests users route
@@ -15,7 +18,9 @@ router.get("/test", (req, res) => res.json({ msg: "users works" }));
 * @description Register user
 * @access Public
 */
-router.post("/register", async (req, res) => {
+router.post("/register", registerUser);
+
+async function registerUser(req, res) {
   const { name, email, password } = req.body;
 
   // if user with given email already exists in db return 400
@@ -41,5 +46,31 @@ router.post("/register", async (req, res) => {
     .save()
     .then(user => res.json(user))
     .catch(err => console.log(err));
+}
+
+/*
+* @route GET api/users/login
+* @description Login user - returning JWT Token
+* @access Public
+*/
+router.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  // Find user by email
+  const user = await User.findOne({ email });
+  if (!user) return res.status(404).json({ email: "User not found" });
+
+  // Check given password vs encrypted password
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (isMatch) {
+    // User matched
+    const { id, name, avatar } = user;
+    const jwtToken = await jwt.sign({ id, name, avatar }, keys.secret, {
+      expiresIn: 3600
+    });
+    return res.json({ success: true, token: `Bearer ${jwtToken}` });
+  } else {
+    return res.status(400).json({ password: "Password incorrect" });
+  }
 });
 module.exports = router;
