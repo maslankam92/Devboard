@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
 /*
@@ -6,6 +6,6 @@ const router = express.Router();
 * @description Tests profile route
 * @access Public
 */
-router.get('/test', (req, res) => res.json({msg: 'profile works'}));
+router.get("/test", (req, res) => res.json({ msg: "profile works" }));
 
 module.exports = router;
