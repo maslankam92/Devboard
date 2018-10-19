@@ -6,6 +6,8 @@ const jwt = require("jsonwebtoken");
 const passport = require("passport");
 const User = require("../../models/User");
 const keys = require("../../config/keys");
+const validateRegisterInput = require("../../validation/register");
+const validateLoginInput = require("../../validation/login");
 
 /*
 * @route GET api/users/register
@@ -33,7 +35,16 @@ router.get(
 );
 
 async function registerUser(req, res) {
-  const { name, email, password } = req.body;
+  const { name, email, password, confirmPassword } = req.body;
+  const { errors, isValid } = validateRegisterInput({
+    name,
+    email,
+    password,
+    confirmPassword
+  });
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
 
   // if user with given email already exists in db return 400
   const user = await User.findOne({ email });
@@ -64,10 +75,20 @@ async function registerUser(req, res) {
 
 async function getJWTToken(req, res) {
   const { email, password } = req.body;
+  const { errors, isValid } = validateLoginInput({
+    email,
+    password
+  });
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
 
   // Find user by email
   const user = await User.findOne({ email });
-  if (!user) return res.status(404).json({ email: "User not found" });
+  if (!user) {
+    errors.email = "User not found";
+    return res.status(404).json(errors);
+  }
 
   // Check given password vs encrypted password
   const isMatch = await bcrypt.compare(password, user.password);
@@ -79,7 +100,8 @@ async function getJWTToken(req, res) {
     });
     return res.json({ success: true, token: `Bearer ${jwtToken}` });
   } else {
-    return res.status(400).json({ password: "Password incorrect" });
+    errors.password = "Password incorrect";
+    return res.status(400).json(errors);
   }
 }
 
