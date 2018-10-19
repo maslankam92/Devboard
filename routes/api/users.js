@@ -3,15 +3,9 @@ const router = express.Router();
 const gravatar = require("gravatar");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const passport = require("passport");
 const User = require("../../models/User");
 const keys = require("../../config/keys");
-
-/*
-* @route GET api/users/test
-* @description Tests users route
-* @access Public
-*/
-router.get("/test", (req, res) => res.json({ msg: "users works" }));
 
 /*
 * @route GET api/users/register
@@ -19,6 +13,24 @@ router.get("/test", (req, res) => res.json({ msg: "users works" }));
 * @access Public
 */
 router.post("/register", registerUser);
+
+/*
+* @route GET api/users/login
+* @description Login user - returning JWT Token
+* @access Public
+*/
+router.post("/login", getJWTToken);
+
+/*
+* @route GET api/users/current
+* @description Returns current user
+* @access Private
+*/
+router.get(
+  "/current",
+  passport.authenticate("jwt", { session: false }),
+  getCurrentUser
+);
 
 async function registerUser(req, res) {
   const { name, email, password } = req.body;
@@ -42,18 +54,15 @@ async function registerUser(req, res) {
   const SALT_ROUNDS = 10;
   newUser.password = await bcrypt.hash(newUser.password, SALT_ROUNDS);
 
-  newUser
-    .save()
-    .then(user => res.json(user))
-    .catch(err => console.log(err));
+  try {
+    const savedUser = await newUser.save();
+    return res.json(savedUser);
+  } catch (err) {
+    console.log(err);
+  }
 }
 
-/*
-* @route GET api/users/login
-* @description Login user - returning JWT Token
-* @access Public
-*/
-router.post("/login", async (req, res) => {
+async function getJWTToken(req, res) {
   const { email, password } = req.body;
 
   // Find user by email
@@ -72,5 +81,14 @@ router.post("/login", async (req, res) => {
   } else {
     return res.status(400).json({ password: "Password incorrect" });
   }
-});
+}
+
+async function getCurrentUser(req, res) {
+  return res.json({
+    id: req.user.id,
+    name: req.user.name,
+    email: req.user.email
+  });
+}
+
 module.exports = router;
