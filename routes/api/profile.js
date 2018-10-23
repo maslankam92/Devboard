@@ -51,14 +51,15 @@ async function createOrUpdateUserProfile(req, res) {
   }
 
   const profileFields = getProfileFieldsFromRequest(req.user, req.body);
-  const profile = await Profile.findOne({ user: profileFields.user.id });
+  const profile = await Profile.findOne({ user: profileFields.user });
   if (profile) {
     // Update profile
     const updatedProfile = await Profile.findOneAndUpdate(
-      { user: profileFields.user.id },
+      { user: profileFields.user },
       { $set: profileFields },
       { new: true }
     );
+
     return res.json(updatedProfile);
   } else {
     // Create profile
@@ -69,7 +70,7 @@ async function createOrUpdateUserProfile(req, res) {
 
 function getProfileFieldsFromRequest(reqUser, body) {
   const user = reqUser.id;
-  const skills = body.skills.split(",");
+  const skills = body.skills.split(",").map(s => s.trim());
   const {
     handle,
     company,
