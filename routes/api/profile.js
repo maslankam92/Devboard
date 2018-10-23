@@ -43,6 +43,13 @@ router.get("/handle/:handle", getProfileByHandle);
 */
 router.get("/user/:user_id", getProfileByUserId);
 
+/*
+* @route GET api/all
+* @description Gets all profiles
+* @access Public
+*/
+router.get("/all", getAllProfiles);
+
 async function getCurrentProfile(req, res) {
   let errors = {};
   const profile = await Profile.findOne({ user: req.user.id }).populate(
@@ -122,6 +129,25 @@ async function getProfileByUserId(req, res) {
   }
 
   return res.json(profile);
+}
+
+async function getAllProfiles(req, res) {
+  let errors = {};
+  let profiles;
+
+  try {
+    profiles = await Profile.find({}).populate("user", ["name", "avatar"]);
+  } catch (e) {
+    errors.noprofile = "There are no profiles";
+    return res.status(404).json(errors);
+  }
+
+  if (!profiles) {
+    errors.noprofile = "There are no profiles";
+    return res.status(404).json(errors);
+  }
+
+  return res.json(profiles);
 }
 
 function getProfileFieldsFromRequest(reqUser, body) {
