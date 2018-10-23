@@ -6,6 +6,7 @@ const passport = require("passport");
 const Profile = require("../../models/Profile");
 const User = require("../../models/User");
 const validateProfileInput = require("../../validation/profile");
+const validateExperienceInput = require("../../validation/experience");
 
 /*
 * @route GET api/profile
@@ -49,6 +50,17 @@ router.get("/user/:user_id", getProfileByUserId);
 * @access Public
 */
 router.get("/all", getAllProfiles);
+
+/*
+* @route POST api/profile/experience
+* @description Adds experience to profile
+* @access Private
+*/
+router.post(
+  "/experience",
+  passport.authenticate("jwt", { session: false }),
+  addExperience
+);
 
 async function getCurrentProfile(req, res) {
   let errors = {};
@@ -150,6 +162,20 @@ async function getAllProfiles(req, res) {
   return res.json(profiles);
 }
 
+async function addExperience(req, res) {
+  const { errors, isValid } = validateExperienceInput(req.body);
+
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+
+  const newExp = getNewExperienceFromRequest(req.body);
+  const profile = await Profile.findOne({ user: req.user.id });
+  profile.experience = [newExp, ...profile.experience];
+  const savedProfile = await profile.save();
+  return res.json(savedProfile);
+}
+
 function getProfileFieldsFromRequest(reqUser, body) {
   const user = reqUser.id;
   const skills = body.skills.split(",").map(s => s.trim());
@@ -180,6 +206,18 @@ function getProfileFieldsFromRequest(reqUser, body) {
     skills,
     social
   };
+}
+
+function getNewExperienceFromRequest({
+  title,
+  company,
+  location,
+  from,
+  to,
+  current,
+  descriptoin
+}) {
+  return { title, company, location, from, to, current, descriptoin };
 }
 
 module.exports = router;
