@@ -5,6 +5,7 @@ const passport = require("passport");
 
 const Profile = require("../../models/Profile");
 const User = require("../../models/User");
+const validateProfileInput = require("../../validation/profile");
 
 /*
 * @route GET api/profile
@@ -30,8 +31,11 @@ router.post(
 
 async function getCurrentProfile(req, res) {
   let errors = {};
-  const profile = await Profile.findOne({ user: req.user.id });
-  // console.log(profile);
+  const profile = await Profile.findOne({ user: req.user.id }).populate(
+    "user",
+    ["name", "avatar"]
+  );
+
   if (!profile) {
     errors.noprofile = "There is no profile for this user";
     return res.status(404).json(errors);
@@ -40,7 +44,13 @@ async function getCurrentProfile(req, res) {
 }
 
 async function createOrUpdateUserProfile(req, res) {
-  const profileFields = getProfileFieldsFromRequest(req);
+  const { errors, isValid } = validateProfileInput(req.body);
+
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+
+  const profileFields = getProfileFieldsFromRequest(req.user, req.body);
   const profile = await Profile.findOne({ user: profileFields.user.id });
   if (profile) {
     // Update profile
@@ -52,13 +62,14 @@ async function createOrUpdateUserProfile(req, res) {
     return res.json(updatedProfile);
   } else {
     // Create profile
-    const createdProfile = await new Profile(profileFields);
+    const createdProfile = await new Profile(profileFields).save();
     return res.json(createdProfile);
   }
 }
 
-function getProfileFieldsFromRequest({ user, body }) {
-  const user = user.id;
+function getProfileFieldsFromRequest(reqUser, body) {
+  const user = reqUser.id;
+  const skills = body.skills.split(",");
   const {
     handle,
     company,
@@ -67,7 +78,6 @@ function getProfileFieldsFromRequest({ user, body }) {
     bio,
     status,
     githubUsername,
-    skills,
     youtube,
     twitter,
     facebook,
