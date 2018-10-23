@@ -7,6 +7,7 @@ const Profile = require("../../models/Profile");
 const User = require("../../models/User");
 const validateProfileInput = require("../../validation/profile");
 const validateExperienceInput = require("../../validation/experience");
+const validateEducationInput = require("../../validation/education");
 
 /*
 * @route GET api/profile
@@ -60,6 +61,17 @@ router.post(
   "/experience",
   passport.authenticate("jwt", { session: false }),
   addExperience
+);
+
+/*
+* @route POST api/profile/education
+* @description Adds education to profile
+* @access Private
+*/
+router.post(
+  "/education",
+  passport.authenticate("jwt", { session: false }),
+  addEducation
 );
 
 async function getCurrentProfile(req, res) {
@@ -176,6 +188,20 @@ async function addExperience(req, res) {
   return res.json(savedProfile);
 }
 
+async function addEducation(req, res) {
+  const { errors, isValid } = validateEducationInput(req.body);
+
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+
+  const newEducation = getNewEducationFromRequest(req.body);
+  const profile = await Profile.findOne({ user: req.user.id });
+  profile.education = [newEducation, ...profile.education];
+  const savedProfile = await profile.save();
+  return res.json(savedProfile);
+}
+
 function getProfileFieldsFromRequest(reqUser, body) {
   const user = reqUser.id;
   const skills = body.skills.split(",").map(s => s.trim());
@@ -218,6 +244,18 @@ function getNewExperienceFromRequest({
   descriptoin
 }) {
   return { title, company, location, from, to, current, descriptoin };
+}
+
+function getNewEducationFromRequest({
+  school,
+  degree,
+  fieldOfStudy,
+  from,
+  to,
+  current,
+  descriptoin
+}) {
+  return { school, degree, fieldOfStudy, from, to, current, descriptoin };
 }
 
 module.exports = router;
