@@ -64,6 +64,17 @@ router.post(
 );
 
 /*
+* @route DELETE api/profile/experience/:exp_id
+* @description Deletes experience from profile
+* @access Private
+*/
+router.delete(
+  "/experience/:exp_id",
+  passport.authenticate("jwt", { session: false }),
+  deleteExperience
+);
+
+/*
 * @route POST api/profile/education
 * @description Adds education to profile
 * @access Private
@@ -72,6 +83,17 @@ router.post(
   "/education",
   passport.authenticate("jwt", { session: false }),
   addEducation
+);
+
+/*
+* @route DELETE api/profile/education/:edu_id
+* @description Deletes education from profile
+* @access Private
+*/
+router.delete(
+  "/education/:edu_id",
+  passport.authenticate("jwt", { session: false }),
+  deleteEducation
 );
 
 async function getCurrentProfile(req, res) {
@@ -184,6 +206,24 @@ async function addExperience(req, res) {
   const newExp = getNewExperienceFromRequest(req.body);
   const profile = await Profile.findOne({ user: req.user.id });
   profile.experience = [newExp, ...profile.experience];
+  const savedProfile = await profile.save();
+  return res.json(savedProfile);
+}
+
+async function deleteExperience(req, res) {
+  const deletedExpId = req.params.exp_id;
+  const profile = await Profile.findOne({ user: req.user.id });
+  profile.experience = profile.experience.filter(
+    exp => exp.id !== deletedExpId
+  );
+  const savedProfile = await profile.save();
+  return res.json(savedProfile);
+}
+
+async function deleteEducation(req, res) {
+  const deletedEduId = req.params.edu_id;
+  const profile = await Profile.findOne({ user: req.user.id });
+  profile.education = profile.education.filter(edu => edu.id !== deletedEduId);
   const savedProfile = await profile.save();
   return res.json(savedProfile);
 }
