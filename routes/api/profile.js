@@ -29,6 +29,13 @@ router.post(
   createOrUpdateUserProfile
 );
 
+/*
+* @route GET api/profile/handle/:handle
+* @description Gets profile by handle
+* @access Public
+*/
+router.get("/handle/:handle", getProfileByHandle);
+
 async function getCurrentProfile(req, res) {
   let errors = {};
   const profile = await Profile.findOne({ user: req.user.id }).populate(
@@ -66,6 +73,27 @@ async function createOrUpdateUserProfile(req, res) {
     const createdProfile = await new Profile(profileFields).save();
     return res.json(createdProfile);
   }
+}
+
+async function getProfileByHandle(req, res) {
+  let errors = {};
+  let profile;
+  try {
+    profile = await Profile.findOne({ handle: req.params.handle }).populate(
+      "user",
+      ["name", "avatar"]
+    );
+  } catch (e) {
+    errors.noprofile = "There is no profile for this user";
+    return res.status(404).json(errors);
+  }
+
+  if (!profile) {
+    errors.noprofile = "There is no profile for this user";
+    return res.status(404).json(errors);
+  }
+
+  return res.json(profile);
 }
 
 function getProfileFieldsFromRequest(reqUser, body) {
