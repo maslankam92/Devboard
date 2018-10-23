@@ -49,7 +49,8 @@ async function registerUser(req, res) {
   // if user with given email already exists in db return 400
   const user = await User.findOne({ email });
   if (user) {
-    return res.status(400).json({ email: "Email already exists" });
+    errors.email = "Email already exists";
+    return res.status(400).json(errors);
   }
   const avatar = gravatar.url(email, {
     s: "200", // size
