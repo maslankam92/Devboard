@@ -5,6 +5,7 @@ const passport = require("passport");
 
 const Post = require("../../models/Post");
 const validatePostInput = require("../../validation/post");
+const validateCommentInput = require("../../validation/comment");
 
 /*
 * @route POST api/posts
@@ -47,6 +48,17 @@ router.post(
   "/like/:id",
   passport.authenticate("jwt", { session: false }),
   likePost
+);
+
+/*
+* @route POST api/posts/comment/:id
+* @description Creates comment
+* @access Private
+*/
+router.post(
+  "/comment/:id",
+  passport.authenticate("jwt", { session: false }),
+  createComment
 );
 
 async function createPost(req, res) {
@@ -104,4 +116,21 @@ async function likePost(req, res) {
   return res.json(like);
 }
 
+async function createComment(req, res) {
+  const { isValid, errors } = validateCommentInput(req.body);
+
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+
+  const commentedPost = await Post.findById(req.params.id);
+  const newComment = {
+    text: req.body.text,
+    user: req.user.id
+  };
+
+  commentedPost.comments = [newComment, ...commentedPost.comments];
+  const post = await commentedPost.save();
+  return res.json(post);
+}
 module.exports = router;
