@@ -61,6 +61,17 @@ router.post(
   createComment
 );
 
+/*
+* @route DELETE api/posts/comment/:id/:comment_id
+* @description Deletes comment
+* @access Private
+*/
+router.delete(
+  "/comment/:id/:comment_id",
+  passport.authenticate("jwt", { session: false }),
+  deleteComment
+);
+
 async function createPost(req, res) {
   const { errors, isValid } = validatePostInput(req.body);
 
@@ -133,4 +144,13 @@ async function createComment(req, res) {
   const post = await commentedPost.save();
   return res.json(post);
 }
+
+async function deleteComment(req, res) {
+  const { id: postId, comment_id: commentId } = req.params;
+  const post = await Post.findById(postId);
+  post.comments = post.comments.filter(comment => comment.id !== commentId);
+  const updatedPost = await post.save();
+  return res.json(updatedPost);
+}
+
 module.exports = router;
