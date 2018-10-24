@@ -38,6 +38,17 @@ router.delete(
   deletePost
 );
 
+/*
+* @route POST api/posts/like/:id
+* @description Likes post
+* @access Private
+*/
+router.post(
+  "/like/:id",
+  passport.authenticate("jwt", { session: false }),
+  likePost
+);
+
 async function createPost(req, res) {
   const { errors, isValid } = validatePostInput(req.body);
 
@@ -65,16 +76,32 @@ async function getPost(req, res) {
 }
 
 async function deletePost(req, res) {
+  let errors = {};
   const deletedPost = await Post.findById(req.params.id);
 
   // Only owner can delete his post
   if (deletedPost.user.toString() !== req.user.id) {
-    return res
-      .status(401)
-      .json({ notauthorized: "User is not authorized to delete this post" });
+    errors.notauthorized = "User is not authorized to delete this post";
+    return res.status(401).json(errors);
   }
   const postRemoved = await deletedPost.remove();
   return res.json(postRemoved);
+}
+
+async function likePost(req, res) {
+  const userId = req.user.id;
+
+  const likedPost = await Post.findById(req.params.id);
+  const isLikedByUser = likedPost.likes.includes(req.user.id);
+
+  // if post is already liked by user, remove like, otherwise, add like
+  if (isLikedByUser) {
+    likedPost.likes = likedPost.likes.filter(like => like !== userId);
+  } else {
+    likedPost.likes = [userId, ...likedPost.likes];
+  }
+  const like = await likedPost.save();
+  return res.json(like);
 }
 
 module.exports = router;
