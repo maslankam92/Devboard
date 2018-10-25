@@ -1,0 +1,23 @@
+.Landing {
+  position: relative;
+  background: url('../../img/bg.jpg') no-repeat center;
+  background-size: cover;
+  height: 90vh;
+}
+
+.Landing .dark-overlay {
+  background-color: rgba(0, 0, 0, 0.7);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.Landing .container {
+  padding: 15rem 0;
+}
+
+.Landing a {
+  margin: 2rem .5rem;
+}

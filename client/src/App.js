@@ -1,18 +1,21 @@
 import React, { Component } from "react";
 import "./App.css";
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGhost } from "@fortawesome/free-solid-svg-icons";
 
-library.add(faGhost);
+// Make Font Awesome work in entire app
+// eslint-disable-next-line no-unused-vars
+import fontAwesome from "./fontAwesome/fontAwesome";
+
+import Navbar from "./components/layout/Navbar";
+import Footer from "./components/layout/Footer";
+import Landing from "./components/layout/Landing";
 
 class App extends Component {
   render() {
     return (
       <div className="App">
-        <h1>Devboard</h1>
-        <button className="btn btn-primary">btsns</button>
-        <FontAwesomeIcon icon="ghost" />
+        <Navbar />
+        <Landing />
+        <Footer />
       </div>
     );
   }
