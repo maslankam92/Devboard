@@ -6,10 +6,27 @@ import "./Register.css";
 class Register extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: ""
+    };
   }
 
+  onChangeInput = e => {
+    const { name, value } = e.target;
+    this.setState({ [name]: value });
+  };
+
+  onSubmitRegisterForm = e => {
+    e.preventDefault();
+    const newUser = { ...this.state };
+    console.log(newUser);
+  };
+
   render() {
+    const { name, email, password, confirmPassword } = this.state;
     return (
       <div className="Register">
         <div className="container">
@@ -19,41 +36,48 @@ class Register extends React.Component {
               <p className="lead text-center">
                 Join Devboard community and create an account
               </p>
-              <form action="create-profile.html">
+              <form onSubmit={this.onSubmitRegisterForm}>
                 <div className="form-group">
                   <input
+                    value={name}
+                    onChange={this.onChangeInput}
                     type="text"
+                    name="name"
                     className="form-control"
                     placeholder="Name"
-                    name="name"
                     autoComplete="newName"
-                    required
                   />
                 </div>
                 <div className="form-group">
                   <input
+                    value={email}
+                    onChange={this.onChangeInput}
                     type="email"
+                    name="email"
                     className="form-control"
                     placeholder="Email Address"
-                    name="email"
                     autoComplete="newEmail"
                   />
                 </div>
                 <div className="form-group">
                   <input
+                    value={password}
+                    onChange={this.onChangeInput}
                     type="password"
+                    name="password"
                     className="form-control"
                     placeholder="Password"
-                    name="password"
                     autoComplete="newPassword"
                   />
                 </div>
                 <div className="form-group">
                   <input
+                    value={confirmPassword}
+                    onChange={this.onChangeInput}
                     type="password"
+                    name="confirmPassword"
                     className="form-control"
                     placeholder="Confirm Password"
-                    name="password2"
                   />
                 </div>
                 <input
