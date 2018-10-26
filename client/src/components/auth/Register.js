@@ -28,7 +28,7 @@ class Register extends React.Component {
   render() {
     const { name, email, password, confirmPassword } = this.state;
     return (
-      <div className="Register">
+      <div className="Login">
         <div className="container">
           <div className="row">
             <div className="form-container bg-light col-md-5 m-auto">
@@ -55,7 +55,7 @@ class Register extends React.Component {
                     type="email"
                     name="email"
                     className="form-control"
-                    placeholder="Email Address"
+                    placeholder="Email"
                     autoComplete="newEmail"
                   />
                 </div>
