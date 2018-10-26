@@ -10,6 +10,7 @@
 .Login .form-container {
   border-radius: 10px;
   padding: 4rem 6rem;
+  box-shadow: 2px 2px 50px -10px #303030
 }
 
 .Login .form-control {

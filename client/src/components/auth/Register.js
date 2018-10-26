@@ -1,5 +1,7 @@
 import React from "react";
 import Link from "react-router-dom/es/Link";
+import axios from "axios";
+import classnames from "classnames";
 
 import "./Register.css";
 
@@ -10,7 +12,8 @@ class Register extends React.Component {
       name: "",
       email: "",
       password: "",
-      confirmPassword: ""
+      confirmPassword: "",
+      errors: {}
     };
   }
 
@@ -22,63 +25,99 @@ class Register extends React.Component {
   onSubmitRegisterForm = e => {
     e.preventDefault();
     const newUser = { ...this.state };
-    console.log(newUser);
+    this.registerUser(newUser);
   };
 
+  onFocusInput = e => {
+    const { name } = e.target;
+    this.setState(state => {
+      return { errors: { ...state.errors, [name]: "" } };
+    });
+  };
+
+  async registerUser(newUser) {
+    try {
+      const userCreated = await axios.post("/api/users/register", newUser);
+      console.log(userCreated);
+    } catch (err) {
+      this.setState({ errors: err.response.data });
+      console.log(err.response.data);
+    }
+  }
+
   render() {
-    const { name, email, password, confirmPassword } = this.state;
+    const { name, email, password, confirmPassword, errors } = this.state;
+
+    const getClassName = el => {
+      const additionalClass = errors && errors[el] ? "is-invalid" : "";
+      return classnames("form-control", additionalClass);
+    };
+
+    const getInvalidFeedback = el => {
+      if (!errors && !errors[el]) return null;
+      return <div className="invalid-feedback">{errors && errors[el]}</div>;
+    };
+
     return (
-      <div className="Login">
+      <div className="Register">
         <div className="container">
           <div className="row">
             <div className="form-container bg-light col-md-5 m-auto">
               <h1 className="display-4 text-center">Welcome</h1>
               <p className="lead text-center">
-                Join Devboard community and create an account
+                Join DevBoard community and create an account
               </p>
-              <form onSubmit={this.onSubmitRegisterForm}>
+              <form noValidate onSubmit={this.onSubmitRegisterForm}>
                 <div className="form-group">
                   <input
                     value={name}
                     onChange={this.onChangeInput}
+                    onFocus={this.onFocusInput}
                     type="text"
                     name="name"
-                    className="form-control"
+                    className={getClassName("name")}
                     placeholder="Name"
                     autoComplete="newName"
                   />
+                  {getInvalidFeedback("name")}
                 </div>
                 <div className="form-group">
                   <input
                     value={email}
                     onChange={this.onChangeInput}
+                    onFocus={this.onFocusInput}
                     type="email"
                     name="email"
-                    className="form-control"
+                    className={getClassName("email")}
                     placeholder="Email"
                     autoComplete="newEmail"
                   />
+                  {getInvalidFeedback("email")}
                 </div>
                 <div className="form-group">
                   <input
                     value={password}
                     onChange={this.onChangeInput}
+                    onFocus={this.onFocusInput}
                     type="password"
                     name="password"
-                    className="form-control"
+                    className={getClassName("password")}
                     placeholder="Password"
                     autoComplete="newPassword"
                   />
+                  {getInvalidFeedback("password")}
                 </div>
                 <div className="form-group">
                   <input
                     value={confirmPassword}
                     onChange={this.onChangeInput}
+                    onFocus={this.onFocusInput}
                     type="password"
                     name="confirmPassword"
-                    className="form-control"
+                    className={getClassName("confirmPassword")}
                     placeholder="Confirm Password"
                   />
+                  {getInvalidFeedback("confirmPassword")}
                 </div>
                 <input
                   type="submit"

@@ -1,24 +1,25 @@
-.Login {
+.Register {
   background-image: linear-gradient(to top, #00c6fb 0%, #005bea 100%);
   height: 100vh;
 }
 
-.Login .container {
+.Register .container {
   padding-top: 15vh;
 }
 
-.Login .form-container {
+.Register .form-container {
   border-radius: 10px;
   padding: 4rem 6rem;
+  box-shadow: 2px 2px 50px -10px #303030
 }
 
-.Login .form-control {
+.Register .form-control {
   border-radius: 0;
   border: 0;
   border-left: 3px solid var(--primary);
 }
 
-.Login .form-control:focus {
+.Register .form-control:focus {
   color: initial;
   outline: 0;
   box-shadow: none;
