@@ -1,6 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter, Route } from "react-router-dom";
+import { Provider } from "react-redux";
+import store from "./store";
 
 import App from "./App";
 import Register from "./components/auth/Register";
@@ -13,13 +15,15 @@ import * as serviceWorker from "./serviceWorker";
 
 const Index = () => {
   return (
-    <BrowserRouter>
-      <>
-        <Route exact path="/register" component={Register} />
-        <Route exact path="/login" component={Login} />
-        <Route exact path="/" component={App} />
-      </>
-    </BrowserRouter>
+    <Provider store={store}>
+      <BrowserRouter>
+        <>
+          <Route exact path="/register" component={Register} />
+          <Route exact path="/login" component={Login} />
+          <Route exact path="/" component={App} />
+        </>
+      </BrowserRouter>
+    </Provider>
   );
 };
 
