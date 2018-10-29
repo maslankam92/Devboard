@@ -1,11 +1,21 @@
+import * as Actions from "../actions/ActionTypes";
+
 const initialState = {
   isAuthenticated: false,
   user: {}
 };
 
-export default function authReducer(state = initialState, action) {
-  switch (action.type) {
+const authReducer = (state = initialState, { type, user }) => {
+  switch (type) {
+    case Actions.TEST_DISPATCH:
+      return {
+        ...state,
+        user
+      };
+
     default:
       return state;
   }
-}
+};
+
+export default authReducer;

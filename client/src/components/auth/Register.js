@@ -1,7 +1,9 @@
 import React from "react";
 import Link from "react-router-dom/es/Link";
-import axios from "axios";
+import { connect } from "react-redux";
 import classnames from "classnames";
+
+import { registerUser } from "../../actions/authActions";
 
 import "./Register.css";
 
@@ -25,7 +27,7 @@ class Register extends React.Component {
   onSubmitRegisterForm = e => {
     e.preventDefault();
     const newUser = { ...this.state };
-    this.registerUser(newUser);
+    this.props.registerUser(newUser);
   };
 
   onFocusInput = e => {
@@ -35,15 +37,15 @@ class Register extends React.Component {
     });
   };
 
-  async registerUser(newUser) {
-    try {
-      const userCreated = await axios.post("/api/users/register", newUser);
-      console.log(userCreated);
-    } catch (err) {
-      this.setState({ errors: err.response.data });
-      console.log(err.response.data);
-    }
-  }
+  // async registerUser(newUser) {
+  //   try {
+  //     const userCreated = await axios.post("/api/users/register", newUser);
+  //     console.log(userCreated);
+  //   } catch (err) {
+  //     this.setState({ errors: err.response.data });
+  //     console.log(err.response.data);
+  //   }
+  // }
 
   render() {
     const { name, email, password, confirmPassword, errors } = this.state;
@@ -137,4 +139,11 @@ class Register extends React.Component {
   }
 }
 
-export default Register;
+const mapStateToProps = state => ({
+  auth: state.auth
+});
+
+export default connect(
+  mapStateToProps,
+  { registerUser }
+)(Register);
