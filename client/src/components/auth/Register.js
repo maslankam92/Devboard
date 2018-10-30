@@ -1,9 +1,11 @@
 import React from "react";
+import PropTypes from "prop-types";
 import Link from "react-router-dom/es/Link";
 import { connect } from "react-redux";
 import classnames from "classnames";
 
 import { registerUser } from "../../actions/authActions";
+import { clearError } from "../../actions/errorActions";
 
 import "./Register.css";
 
@@ -19,6 +21,13 @@ class Register extends React.Component {
     };
   }
 
+  static getDerivedStateFromProps(nextProps) {
+    if (nextProps.errors) {
+      return { errors: nextProps.errors };
+    }
+    return null;
+  }
+
   onChangeInput = e => {
     const { name, value } = e.target;
     this.setState({ [name]: value });
@@ -26,26 +35,15 @@ class Register extends React.Component {
 
   onSubmitRegisterForm = e => {
     e.preventDefault();
+    const { registerUser, history } = this.props;
     const newUser = { ...this.state };
-    this.props.registerUser(newUser);
+    registerUser(newUser, history);
   };
 
   onFocusInput = e => {
     const { name } = e.target;
-    this.setState(state => {
-      return { errors: { ...state.errors, [name]: "" } };
-    });
+    this.props.clearError(name);
   };
-
-  // async registerUser(newUser) {
-  //   try {
-  //     const userCreated = await axios.post("/api/users/register", newUser);
-  //     console.log(userCreated);
-  //   } catch (err) {
-  //     this.setState({ errors: err.response.data });
-  //     console.log(err.response.data);
-  //   }
-  // }
 
   render() {
     const { name, email, password, confirmPassword, errors } = this.state;
@@ -139,11 +137,19 @@ class Register extends React.Component {
   }
 }
 
-const mapStateToProps = state => ({
-  auth: state.auth
+Register.propTypes = {
+  registerUser: PropTypes.func.isRequired,
+  clearError: PropTypes.func.isRequired,
+  auth: PropTypes.object.isRequired,
+  errors: PropTypes.object.isRequired
+};
+
+const mapStateToProps = ({ auth, error }) => ({
+  auth,
+  errors: error
 });
 
 export default connect(
   mapStateToProps,
-  { registerUser }
+  { registerUser, clearError }
 )(Register);

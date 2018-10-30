@@ -7,7 +7,7 @@ const initialState = {
 
 const authReducer = (state = initialState, { type, user }) => {
   switch (type) {
-    case Actions.TEST_DISPATCH:
+    case Actions.REGISTER_USER:
       return {
         ...state,
         user
