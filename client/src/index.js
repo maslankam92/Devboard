@@ -4,6 +4,8 @@ import { BrowserRouter, Route } from "react-router-dom";
 import { Provider } from "react-redux";
 import store from "./store";
 
+import checkUser from "./utils/checkUser";
+
 import App from "./App";
 import Register from "./components/auth/Register";
 import Login from "./components/auth/Login";
@@ -12,6 +14,8 @@ import "./styles/bootstrap.css";
 import "./index.css";
 
 import * as serviceWorker from "./serviceWorker";
+
+checkUser();
 
 const Index = () => {
   return (

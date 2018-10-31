@@ -1,4 +1,5 @@
 import * as Actions from "../actions/ActionTypes";
+import isEmpty from "../utils/isEmpty";
 
 const initialState = {
   isAuthenticated: false,
@@ -10,6 +11,12 @@ const authReducer = (state = initialState, { type, user }) => {
     case Actions.REGISTER_USER:
       return {
         ...state,
+        user
+      };
+
+    case Actions.SET_USER:
+      return {
+        isAuthenticated: !isEmpty(user),
         user
       };
 
